@@ -1,7 +1,10 @@
 package com.tiago.helpdesk.services;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,6 +41,14 @@ public class ChamadoService {
 		return repository.save(newChamado(objDTO));
 	}
 	
+	
+	public Chamado update(Integer id, @Valid ChamadoDTO objDTO) {
+		objDTO.setId(id);
+		Chamado oldObj = findById(id); //pesquisar se ja existe um id
+		oldObj = newChamado(objDTO);
+		return repository.save(oldObj);
+	}
+	
 	//metodo que vai criar o novo Chamado no metodo seguinte(create)
 	private Chamado newChamado(ChamadoDTO obj) {
 		Tecnico tecnico = tecnicoService.findById(obj.getTecnico());
@@ -47,6 +58,10 @@ public class ChamadoService {
 		if(obj.getId() != null) {
 			chamado.setId(obj.getId());
 		}
+		
+		if(obj.getStatus().equals(2)) {
+			chamado.setDataFechamento(LocalDate.now());
+		}
 		chamado.setTecnico(tecnico);
 		chamado.setCliente(cliente);
 		chamado.setPrioridade(Prioridade.toEnum(obj.getPrioridade()));
@@ -55,5 +70,7 @@ public class ChamadoService {
 		chamado.setObservacoes(obj.getObservacoes());
 		return chamado;
 	}
+
+
 	
 }
